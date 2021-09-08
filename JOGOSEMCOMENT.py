@@ -11,14 +11,21 @@ YELLOW = (255, 255, 0)
 
 pygame.init()
 
-pygame.mixer.music.set_volume(0.01)
+#class Player(pygame.sprite.Sprit):
+   # def __init__(self):
+       # pygame.sprite.Sprite.__init__(self)
+
+
+pygame.mixer.music.set_volume(0)
 background_music = pygame.mixer.music.load('fundoMusica.ogg')
 pygame.mixer.music.play(-1)
 
+pygame.mixer.music.set_volume(0)
 collision_sound = pygame.mixer.Sound('colisaoMusica.wav')
-pygame.mixer.music.set_volume(0.01)
 
-obstacle = 0 
+pygame.mixer.music.set_volume(0)
+bonus_sound = pygame.mixer.Sound('bonusMusica.wav')
+
 
 font = pygame.font.SysFont('arial', 30, True, False)
 score = 0
@@ -27,7 +34,7 @@ screen = pygame.display.set_mode((640, 480))
  
 pygame.display.set_caption('SALLES VERSO')
 
-background_image = pygame.image.load('fundoCidade.png').convert()
+background_image = pygame.image.load('fundoCidade.png').convert_alpha()
 background_image = pygame.transform.scale(background_image, (640, 480))
 
 position_x = 300
@@ -53,12 +60,13 @@ for i in range(20):
     vector_position_yobst.append(position_yobst)
 
 position_xbon = random.randint(0, 620)
-position_ybon = 0
+position_ybon = -100
 
-bonus_ativo = False
-jogo_rodando = True
+active_bonus = False
+game_loop = True
 
-while jogo_rodando:
+count = 0
+while game_loop:
 
     clock.tick(30)
 
@@ -93,7 +101,7 @@ while jogo_rodando:
 
     character = pygame.draw.rect(screen, WHITE, [position_x, position_y, 40, 40]) 
     
-    if not bonus_ativo:
+    if not active_bonus:
         bonus = pygame.draw.rect(screen, BLUE, [position_xbon, position_ybon, 20, 20])
         position_ybon += 10 
 
@@ -105,21 +113,25 @@ while jogo_rodando:
         if character.colliderect(obstacle):
             vector_position_yobst[j] = -100
 
-            if bonus_ativo:
-                bonus_ativo = False                
+            if active_bonus:
+                active_bonus = False                
+            
                 break
             
-            if bonus_ativo == False:    
+            if active_bonus == False:    
                 collision_sound.play()
                 vector_position_yobst[j] = 0
-                jogo_rodando = False
-                
+                time.sleep(3)
+                game_loop = False
                 break
-           
-        
+             
     if character.colliderect(bonus):
-        bonus_ativo = True
+        active_bonus = True
         position_ybon = -100
+        position_xbon = 0
+        bonus_sound.play()
+        count = 1
+
 
     for k in range(20):
         if vector_position_yobst[k] > 640:
