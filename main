@@ -1,4 +1,4 @@
-import pygame, random, time 
+import pygame, pygame_menu, random, time 
 
 from pygame.locals import *
 
@@ -11,11 +11,12 @@ RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 
 #  tamanho da tela 
-WIDTH = 640
-HEIGHT = 480
+WIDTH = 1200
+HEIGHT = 800
 
 #  velocidade do jogador no eixo x 
-speed_player = 5
+speed_player = 8
+
 
 #  classes do jogador, obstáculos e das balas 
 class Player(pygame.sprite.Sprite):
@@ -28,9 +29,8 @@ class Player(pygame.sprite.Sprite):
                           ]
 
         self.image = pygame.image.load('sprites/sprite_0.png')
-        self.rect = pygame.Rect(320, 345, 32*2, 32*2)
+        self.rect = pygame.Rect(WIDTH//2, 600, 32*3, 32*3)
         self.current_image = 0
-        self.cool_down = 0
     
     def update(self, *args):
         
@@ -43,30 +43,30 @@ class Player(pygame.sprite.Sprite):
             
         self.current_image = (self.current_image + 1) % 3
         self.image = self.image_run[self.current_image]
-        self.image = pygame.transform.scale(self.image, (32*2, 32*2))
+        self.image = pygame.transform.scale(self.image, (32*3, 32*3))
            
         if self.rect.x < -10:
             self.rect.x = -10
-        elif self.rect.x > 600:
-            self.rect.x = 600
+        elif self.rect.x > 1140:
+            self.rect.x = 1140
 
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
         self.image = pygame.image.load('sprites/sprite_3.png')
-        self.image = pygame.transform.scale(self.image, (32, 32))
-        self.rect = pygame.Rect(450, -100 , 32, 32)
+        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.rect = pygame.Rect(450, -100 , 40, 40)
         
         self.speed = 5
 
-        self.rect.x = random.randint(32, 608)
+        self.rect.x = random.randint(32, 1100)
         self.rect.y = random.randint(-100, -50)
 
     def update(self, *args):
         self.rect.y += self.speed
 
-        if self.rect.bottom > 500:
+        if self.rect.bottom > 800:
             self.kill()
 
 class Obstacle2(pygame.sprite.Sprite):
@@ -74,18 +74,18 @@ class Obstacle2(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         
         self.image = pygame.image.load('sprites/sprite_3.png')
-        self.image = pygame.transform.scale(self.image, (32, 32))
-        self.rect = pygame.Rect(450, -100 , 32, 32)
+        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.rect = pygame.Rect(450, -100 , 40, 40)
         
         self.speed = 10
 
-        self.rect.x = random.randint(32, 608)
+        self.rect.x = random.randint(40, 1100)
         self.rect.y = random.randint(-100, -50)
 
     def update(self, *args):
         self.rect.y += self.speed
 
-        if self.rect.bottom > 500:
+        if self.rect.bottom > 800:
             self.kill()
 
 class Obstacle3(pygame.sprite.Sprite):
@@ -93,193 +93,240 @@ class Obstacle3(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         
         self.image = pygame.image.load('sprites/sprite_3.png')
-        self.image = pygame.transform.scale(self.image, (32, 32))
-        self.rect = pygame.Rect(450, -100 , 32, 32)
+        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.rect = pygame.Rect(450, -100 , 40, 40)
         
         self.speed = 15
 
-        self.rect.x = random.randint(32, 608)
+        self.rect.x = random.randint(40, 1100)
         self.rect.y = random.randint(-100, -50)
 
     def update(self, *args):
         self.rect.y += self.speed
 
-        if self.rect.bottom > 500:
+        if self.rect.bottom > 800:
             self.kill()
 
 class Bullets(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
-        self.image = pygame.image.load('sprites/sprite_4.png')
-        self.image = pygame.transform.scale(self.image, (10, 10))
+        self.image = pygame.image.load('sprites/pinguim_0.png')
+        self.image = pygame.transform.scale(self.image, (32, 32))
         self.rect = self.image.get_rect()
-        
         self.speed = 5
 
     def update(self, *args):
         self.rect.y -= self.speed
-
         if self.rect.top < 0:
             self.kill()
 
-pygame.init() 
+pygame.init()
 
-#  grupos das classes do jogo 
-player_group = pygame.sprite.Group()
-player = Player()
-player_group.add(player)
+surface = pygame.display.set_mode((1200, 800))
 
-obstacle_group = pygame.sprite.Group()
-obstacle = Obstacle()
-obstacle_group.add(obstacle)
+def Game():
+   
+    #  grupos das classes do jogo 
+    player_group = pygame.sprite.Group()
+    player = Player()
+    player_group.add(player)
 
-obstacle2_group = pygame.sprite.Group()
-obstacle2 = Obstacle2()
-obstacle2_group.add(obstacle2)
+    obstacle_group = pygame.sprite.Group()
+    obstacle = Obstacle()
+    obstacle_group.add(obstacle)
 
-obstacle3_group = pygame.sprite.Group()
-obstacle3 = Obstacle3()
-obstacle3_group.add(obstacle3)
+    obstacle2_group = pygame.sprite.Group()
+    obstacle2 = Obstacle2()
+    obstacle2_group.add(obstacle2)
 
-bullets_group = pygame.sprite.Group()
-bullets = Bullets()
-bullets_group.add(bullets)
+    obstacle3_group = pygame.sprite.Group()
+    obstacle3 = Obstacle3()
+    obstacle3_group.add(obstacle3)
 
-game_loop = True
-playing_game = False
+    bullets_group = pygame.sprite.Group()
+    bullets = Bullets()
+    bullets_group.add(bullets)
 
-#  músicas
-pygame.mixer.music.set_volume(0)
-background_music = pygame.mixer.music.load('fundoMusica.ogg')
-pygame.mixer.music.play(-1)
-
-pygame.mixer.music.set_volume(0)
-collision_sound = pygame.mixer.Sound('colisaoMusica.wav')
-
-pygame.mixer.music.set_volume(0)
-bonus_sound = pygame.mixer.Sound('bonusMusica.wav')
-
-#  fonte da pontuação
-font = pygame.font.SysFont('Corbel', 30, True, False)
-score = 0
-
-#  tela e fundos de tela 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('SALLES VS WINDOWS')
-
-background_image = pygame.image.load('fundoCidade.png')
-background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
-
-menu_image = pygame.image.load('fundoMenu.jpg')
-menu_image = pygame.transform.scale(menu_image, (WIDTH, HEIGHT))
-
-#  funções de desenho na tela e para atualizar a tela 
-def draw():
-    player_group.draw(screen)
-    obstacle_group.draw(screen)
-
-def update():
-    player_group.update()
-    obstacle_group.update()
-
-#atualizar o fps dentro do loop 
-clock = pygame.time.Clock()
-
-# tempo para dar spawn em novos obstáculos dentro do loop
-timer = 20
-count = 0
-
-while game_loop:
+    #  flag do loop infinito do jogo 
+    game_loop = True
     
-    clock.tick(60)
-
-    screen.blit(background_image, (0, 0))
-
-    text = f'Pontuação:{score:.0f}'
-    text_format = font.render(text, True, WHITE)
-
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
+    #  músicas
+    pygame.mixer.music.set_volume(0.1)
     
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                bonus_sound.play()
-                new_Bullet = Bullets()
-                player_group.add(new_Bullet) 
-                bullets_group.add(new_Bullet)
-                new_Bullet.rect.center = player.rect.center
-                score -= 1
+    background_music = pygame.mixer.music.load('backgroundMusic.ogg')
+    pygame.mixer.music.play(-1)
 
-           
-            if event.key == pygame.K_f:
-                playing_game = True
+    dead_sound = pygame.mixer.Sound('collisionMusic.wav')
 
-    if playing_game:
+    hit_sound = pygame.mixer.Sound('hitMusic.wav')
+
+    shot_sound = pygame.mixer.Sound('shotMusic.wav')
+
+    #  fonte da pontuação do jogador
+    font = pygame.font.SysFont('Corbel', 30, True, False)
+
+    #  contador da pontuação do jogador 
+    score = 0
+
+    #  tela e fundo de tela 
+    surface = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption('SALLES VS WINDOWS')
+
+    background_image = pygame.image.load('background.png')
+    background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
+
+    #  funções de desenho na tela e para atualizar a tela 
+    def draw():
+        player_group.draw(surface)
+        obstacle_group.draw(surface)
+
+
+    def update():
+        player_group.update()
+        obstacle_group.update()
+
+    #  atualizar o fps dentro do loop 
+    clock = pygame.time.Clock()
+
+    #  tempo para dar spawn em novos obstáculos dentro do loop
+    timer = 20
+    count = 0
+
+
+    while game_loop:
+        #  ajustando a taxa de fps
+        clock.tick(60)
+
+        #  colocando a imagem de fundo do jogo em andamento
+        surface.blit(background_image, (0, 0))
+
+        #  texto que irá receber a pontuação
+        text = f'Pontuação:{score:.0f}'
+        text_format = font.render(text, True, WHITE)
+
+        #  o jogo só fecha se clicar no 'X' da janela 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        
+        #  definindo que a tecla espaço irá disparar a bala
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    shot_sound.play()
+                    new_Bullet = Bullets()
+                    player_group.add(new_Bullet) 
+                    bullets_group.add(new_Bullet)
+                    
+                    #  a bala vai sair do próprio jogador
+                    new_Bullet.rect.center = player.rect.center  
+                    
+                    #  cada vez que a tecla é apertada o jogador perde 1 ponto 
+                    score -= 1  
+
         timer += 1
         score += 0.005
-        if count < 1000:
+        
+        if count < 2000:
             if timer > 20:
                 timer = 0
                 if random.random() < 0.7:
                     newObstacle = Obstacle()
                     obstacle_group.add(newObstacle)
 
-        elif count < 4000:
-            if timer > 20:
+        elif count < 5000:
+            if timer > 10:
                 timer = 0
                 if random.random() <= 1:
                     newObstacle = Obstacle2()
                     obstacle_group.add(newObstacle)
 
         else:
-            if timer > 20:
+            if timer > 10:
                 timer = 0
                 if random.random() <= 1:
                     newObstacle = Obstacle3()
                     obstacle_group.add(newObstacle)
 
+        # contador para saber quando aumentar a velocidade dos obstáculos
         count += 1
-        print(count)
-
+        
+        # verificando a colisão entre o player o obstáculo
         collisions = pygame.sprite.spritecollide(player, obstacle_group, False, pygame.sprite.collide_mask)
 
+        # verificando se as balas estão colidindo com os obstáculos para que, dessa forma, os obstáculos sejam eliminados 
         hits = pygame.sprite.groupcollide(bullets_group, obstacle_group, True, True, pygame.sprite.collide_mask)
-
+        
+        # se houver colisão o jogo irá encerrar e vai para a tela de 
         if collisions:
-            collision_sound.play()
+            dead_sound.play()
             time.sleep(3)   
-            playing_game = False
+            break
 
+        # se a bala acertar algum obstáculo a pontuação aumenta em 2 pontos 
         if hits:
             score += 2
-        
+            hit_sound.play()
+
+        # se a pontuação do jogador for menor que 0 ,ela irá travar em 0, para que não fique negativa      
         if score < 0:
             score = 0
         
-        screen.blit(text_format, (450,40))
+        #  escrevendo na tela a pontuação do jogador 
+        surface.blit(text_format, (1000,40))
 
         update()  
         draw()
-    
-
-    #  Menu do jogo 
-    if playing_game == False:
-        screen.blit(menu_image, (0, 0))
-
-        # Nome do jogo
-        title = font.render('SALLES VS WINDOWS', True, ((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))))
-        title_rect = title.get_rect()
-        title_rect.center = (WIDTH//2 , 100)
-        screen.blit(title, title_rect)
         
+        # atualizando a tela 
+        pygame.display.flip()
 
-        # Jogar 
-        play = font.render('Pressione a tecla F para começar', True, YELLOW)
-        play_rect = play.get_rect()
-        play_rect.center = (WIDTH//2 , 400)
-        screen.blit(play, play_rect)
 
-    pygame.display.flip()
+#  criando um submenu para ajudar nos controles do jogo
+submenu_controls_theme = pygame_menu.themes.THEME_GREEN.copy()
+submenu_controls_theme.widget_font_size = 35
+play_controls = pygame_menu.Menu(
+        height = 800,
+        theme = submenu_controls_theme,
+        title ='CONTROLES',
+        width = 1200
+)
+help_controls = 'Aperte a tecla "A" para ir para a esquerda\n' \
+                'Aperte a tecla "D" para ir para a direita\n' \
+                'Aperte a barra de espaço para lançar os pinguins\n' \
+
+play_controls.add.label(help_controls, max_char = -1, font_size = 40)
+play_controls.add.button('Voltar ao menu principal', pygame_menu.events.RESET)
+
+#  criando um submenu para ajudar no objetivo do jogo
+submenu_objective_theme = pygame_menu.themes.THEME_GREEN.copy()
+submenu_objective_theme.widget_font_size = 35
+play_objective = pygame_menu.Menu(
+        height = 800,
+        theme = submenu_controls_theme,
+        title ='DICAS',
+        width = 1200
+)
+
+help_objective = '1 - Tente conseguir o maior número de pontos possíveis!\n\n' \
+                 '2 - Cuidado, se você tocar no windows está morto, tente escapar ou eliminá-los\n\n' \
+                 '3 - A cada windows destruído você ganha 2 pontos\n\n' \
+                 '4 - A cada pinguim lançado você perde 1 ponto, tente não errar ou lançar muitos de uma vez para não zerar a sua pontuação\n\n' \
+                 '5 - Você também ganha pontos na medida em que o tempo passa, fica esperto\n\n' \
+                 '6 - O jogo possui 3 velocidades diferentes que mudam conforme o tempo passa, tente chegar na mais rápida e pontuar bastante!\n'
+
+play_objective.add.label(help_objective, max_char = -1, font_size = 30)
+play_objective.add.button('Voltar ao menu principal', pygame_menu.events.RESET)
+
+# criando o menu do jogo 
+menu = pygame_menu.Menu('MENU', 1200, 800,theme = pygame_menu.themes.THEME_GREEN)
+game_name = '      SALLES   VS   WINDOWS\n'
+
+menu.add.label(game_name, max_char = -1, font_size = 60)
+
+menu.add.button('JOGAR', Game)
+menu.add.button('CONTROLES', play_controls)
+menu.add.button('DICAS', play_objective)
+menu.add.button('SAIR', pygame_menu.events.EXIT)
+
+menu.mainloop(surface)
